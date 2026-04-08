@@ -1,0 +1,185 @@
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: #eef2f7;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== BACKGROUND BLUR (GIỐNG INDEX) ===== */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("/static/images/01.jpg");
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    transform: scale(1.05);
+    z-index: -1;
+}
+
+/* ===== LIVE HEADER ===== */
+.live-header {
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* ===== HEADER (ĐỒNG BỘ INDEX) ===== */
+.header {
+    background: #0f172a;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.header-menu a {
+    color: #e5e7eb;
+    text-decoration: none;
+    margin-left: 18px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.header-menu a:hover,
+.header-menu .active {
+    color: #38bdf8;
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 3px;
+}
+
+/* ===== CONTAINER ===== */
+.live-container {
+    width: 1000px;
+    margin: 35px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    text-align: center;
+    flex: 1;
+}
+
+.live-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #0f172a;
+}
+
+/* ===== INDICATOR ===== */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #ef4444;
+}
+
+.live-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.3; }
+}
+
+/* ===== VIDEO BOX ===== */
+.live-video-box {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 900px;
+}
+
+.live-video {
+    width: 100%;
+    border-radius: 14px;
+    border: 4px solid #0f172a;
+    transition: filter 0.3s;
+}
+
+.paused {
+    filter: grayscale(90%) brightness(0.7);
+}
+
+/* ===== LIVE BADGE ===== */
+.live-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #ef4444;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* ===== BUTTON (ĐỒNG BỘ INDEX) ===== */
+.overlay-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    padding: 12px 26px;
+    font-size: 15px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: 0.3s;
+}
+
+.overlay-btn:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+/* ===== ALERT ===== */
+.live-alert {
+    margin-top: 20px;
+    padding: 14px;
+    background: #fee2e2;
+    border-left: 6px solid #ef4444;
+    border-radius: 10px;
+    font-weight: bold;
+    color: #7f1d1d;
+}
+
+/* ===== FOOTER (ĐỒNG BỘ INDEX) ===== */
+.live-footer {
+    text-align: center;
+    padding: 15px;
+    background: #f1f5f9;
+    color: #555;
+    font-size: 14px;
+}
+

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giám sát trực tiếp</title>
+    <link rel="stylesheet" href="/static/css/stream.css">
+
+</head>
+<body>
+
+
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/templates/statistics.html">📊 Thống kê</a>
+        <a href="/locations">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<div class="live-container">
+
+    <h2 class="live-title">📷 Camera giao lộ</h2>
+
+    <div class="live-indicator">
+        <span class="live-dot"></span>
+        Hệ thống đang giám sát xe vượt đèn đỏ
+    </div>
+
+    <!-- VIDEO -->
+    <div class="live-video-box">
+        <span class="live-badge">LIVE</span>
+
+        <img src="/video_feed" class="live-video" id="liveVideo">
+
+        <button class="overlay-btn" onclick="toggleStream()" id="btnStream">
+            ⏸️ Dừng
+        </button>
+    </div>
+
+    <div class="live-alert">
+        🚨 Vi phạm khi <b>ĐÈN ĐỎ</b> và <b>PHƯƠNG TIỆN VƯỢT VẠCH DỪNG</b>
+    </div>
+
+</div>
+
+<div class="live-footer">
+    © 2026 | Đồ án Hệ thống giao thông thông minh
+</div>
+
+<script>
+let paused = false;
+const video = document.getElementById("liveVideo");
+const btn = document.getElementById("btnStream");
+
+function toggleStream() {
+    if (!paused) {
+        fetch("/pause_stream");
+        video.classList.add("paused");
+        btn.innerHTML = "▶️ Chạy";
+    } else {
+        fetch("/resume_stream");
+        video.classList.remove("paused");
+        video.src = "/video_feed?ts=" + Date.now();
+        btn.innerHTML = "⏸️ Dừng";
+    }
+    paused = !paused;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #eef2f7;
+    padding: 20px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-image: url("/static/images/01.jpg");
+    background-size: cover;
+    background-position: center;
+
+    filter: blur(8px);        /* độ mờ */
+    z-index: -1;              /* nằm sau nội dung */
+    transform: scale(1.05);  /* tránh viền trắng do blur */
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: #0f172a;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px;
+}
+
+.header-left {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.header-menu a {
+    color: #e5e7eb;
+    text-decoration: none;
+    margin-left: 18px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.header-menu a:hover,
+.header-menu .active {
+    color: #38bdf8;
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 3px;
+}
+
+/* ===== SUMMARY ===== */
+.summary {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.card {
+    background: white;
+    padding: 22px 50px;
+    border-radius: 14px;
+    font-size: 18px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+.card p {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2563eb;
+    margin-top: 10px;
+}
+
+/* ===== CHARTS ===== */
+.charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.chart-box {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.chart-box h3 {
+    font-size: 16px;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+/* ===== CANVAS SIZE (NHỎ XINH) ===== */
+.chart-box canvas {
+    max-width: 100%;
+    height: 220px !important;
+}

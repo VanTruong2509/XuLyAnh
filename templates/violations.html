@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xe vi phạm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/violations.css') }}">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/statistics">📊 Thống kê</a>
+        <a href="/locations">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<h2>🚨 Danh sách xe vi phạm</h2>
+
+<!-- FILTER -->
+<div class="filter-box">
+    <input type="date" id="dateFilter">
+    <input type="text" id="plateFilter" placeholder="Nhập biển số...">
+
+    <!-- EXPORT -->
+    <button class="export-btn" onclick="exportCSV()">📤 Xuất danh sách</button>
+</div>
+
+<table id="violationTable">
+    <thead>
+        <tr>
+            <th>Thời gian</th>
+            <th>Biển số</th>
+            <th>Loại xe</th>
+            <th>Ảnh xe</th>
+            <th>Ảnh biển số</th>
+            <th>Mức phạt</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in violations %}
+        <tr>
+            <td class="time">{{ v['Thoi gian'] }}</td>
+
+            <td class="plate"><b>{{ v['Bien so'] }}</b></td>
+
+            <!-- LOẠI XE -->
+            <td>
+                {% if 'Xe may' in v['Loai xe'] %}
+                    🏍️ Xe máy
+                {% elif 'Xe tai' in v['Loai xe'] %}
+                    🚚 Xe tải
+                {% elif 'Xe buyt' in v['Loai xe'] %}
+                    🚌 Xe buýt
+                {% else %}
+                    🚗 Ô tô
+                {% endif %}
+            </td>
+
+            <!-- ẢNH XE -->
+            <td>
+                <img src="{{ url_for('violation_images', filename=v['Anh xe']) }}"
+                     onclick="openModal(this.src)">
+            </td>
+
+            <!-- ẢNH BIỂN SỐ -->
+            <td>
+                <img src="{{ url_for('violation_plates', filename=v['Anh bien so']) }}"
+                     onclick="openModal(this.src)">
+            </td>
+
+            <!-- MỨC PHẠT -->
+            <td class="fine">
+                {% if 'Xe may' in v['Loai xe'] %}
+                    4.000.000 – 6.000.000 VNĐ<br>
+                    <small>Tước GPLX 1–3 tháng</small>
+                {% else %}
+                    18.000.000 – 20.000.000 VNĐ<br>
+                    <small>Tước GPLX 2–4 tháng</small>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- MODAL ẢNH -->
+<div id="imgModal" class="modal" onclick="closeModal()">
+    <img id="modalImg">
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+</div>
+
+<!-- SCRIPT -->
+<script>
+/* ===== MODAL ===== */
+function openModal(src) {
+    document.getElementById("imgModal").style.display = "flex";
+    document.getElementById("modalImg").src = src;
+}
+function closeModal() {
+    document.getElementById("imgModal").style.display = "none";
+}
+
+/* ===== FILTER ===== */
+document.getElementById("plateFilter").addEventListener("keyup", filterTable);
+document.getElementById("dateFilter").addEventListener("change", filterTable);
+
+function filterTable() {
+    let plateInput = document.getElementById("plateFilter").value.toLowerCase();
+    let dateInput = document.getElementById("dateFilter").value;
+    let rows = document.querySelectorAll("#violationTable tbody tr");
+
+    rows.forEach(row => {
+        let plate = row.querySelector(".plate").innerText.toLowerCase();
+        let time = row.querySelector(".time").innerText;
+
+        let plateMatch = plate.includes(plateInput);
+        let dateMatch = dateInput === "" || time.includes(dateInput);
+
+        row.style.display = (plateMatch && dateMatch) ? "" : "none";
+    });
+}
+
+/* ===== EXPORT CSV ===== */
+function exportCSV() {
+    let rows = document.querySelectorAll("#violationTable tr");
+    let csv = [];
+
+    rows.forEach(row => {
+        if (row.style.display === "none") return;
+
+        let cols = row.querySelectorAll("th, td");
+        let rowData = [];
+
+        cols.forEach(col => {
+            let text = col.innerText.replace(/\n/g, " ").trim();
+            rowData.push('"' + text + '"');
+        });
+
+        csv.push(rowData.join(","));
+    });
+
+    let csvContent = "\uFEFF" + csv.join("\n"); // BOM cho Excel
+    let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "xe_vi_pham.csv";
+    link.click();
+}
+</script>
+
+</body>
+</html>

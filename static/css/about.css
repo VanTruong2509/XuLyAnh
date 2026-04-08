@@ -1,0 +1,135 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #eef2f7;
+}
+
+/* BACKGROUND MỜ */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("/static/images/01.jpg");
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    z-index: -1;
+    transform: scale(1.05);
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: #0f172a;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px;
+}
+
+.header-left {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.header-menu a {
+    color: #e5e7eb;
+    text-decoration: none;
+    margin-left: 18px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.header-menu a:hover,
+.header-menu .active {
+    color: #38bdf8;
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 3px;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    width: 900px;
+    margin: 35px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* ===== INFO BOX ===== */
+.info-box {
+    background: #e0f2fe;
+    border-left: 6px solid #0284c7;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    color: #0f172a;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 15px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+th {
+    background: #e0f2fe;
+    color: #0f172a;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #eef2ff;
+}
+
+/* ===== PROCESS ===== */
+.process {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.process h3 {
+    margin-top: 0;
+    color: #0f172a;
+}
+
+.process ul {
+    padding-left: 20px;
+}
+
+.process li {
+    margin: 8px 0;
+}
+
+/* ===== NOTE ===== */
+.note {
+    margin-top: 25px;
+    padding: 15px;
+    background: #fef3c7;
+    border-left: 6px solid #f59e0b;
+    border-radius: 8px;
+    color: #78350f;
+    font-size: 14px;
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    background: #f1f5f9;
+    color: #555;
+}

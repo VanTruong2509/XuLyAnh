@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Mức phạt xe vượt đèn đỏ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/statistics">📊 Thống kê</a>
+        <a href="/locations">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+    <h2>📜 MỨC PHẠT XE VƯỢT ĐÈN ĐỎ / ĐÈN VÀNG</h2>
+
+    <!-- INTRO BOX -->
+    <div class="info-box">
+        <p>
+            🚨 Trang này cung cấp <b>thông tin mức xử phạt vi phạm giao thông</b>
+            đối với hành vi <b>vượt đèn đỏ hoặc đèn vàng</b>, được hệ thống AI
+            tự động phát hiện thông qua camera giám sát.
+        </p>
+    </div>
+
+    <!-- TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>Phương tiện</th>
+                <th>Mức phạt tiền</th>
+                <th>Hình phạt bổ sung</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>🏍️ Xe máy</td>
+                <td><b>4.000.000 – 6.000.000 VNĐ</b></td>
+                <td>Tước GPLX <b>1 – 3 tháng</b></td>
+            </tr>
+
+            <tr>
+                <td>🚗 Ô tô</td>
+                <td><b>18.000.000 – 20.000.000 VNĐ</b></td>
+                <td>Tước GPLX <b>2 – 4 tháng</b></td>
+            </tr>
+
+            <tr>
+                <td>🚚 Xe tải / 🚌 Xe buýt</td>
+                <td><b>18.000.000 – 20.000.000 VNĐ</b></td>
+                <td>Tước GPLX <b>2 – 4 tháng</b></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- PROCESS -->
+    <div class="process">
+        <h3>⚙️ Quy trình xử lý vi phạm của hệ thống</h3>
+        <ul>
+            <li>📷 Camera ghi nhận phương tiện vượt vạch dừng</li>
+            <li>🧠 AI nhận diện trạng thái đèn giao thông</li>
+            <li>🔍 YOLO phát hiện & theo dõi phương tiện</li>
+            <li>🔠 OCR trích xuất biển số xe</li>
+            <li>💾 Lưu dữ liệu & hiển thị mức phạt tương ứng</li>
+        </ul>
+    </div>
+
+    <!-- NOTE -->
+    <div class="note">
+        📌 <b>Lưu ý pháp lý:</b><br>
+        – Hành vi <b>vượt đèn đỏ hoặc đèn vàng</b> đều bị xử phạt như nhau.<br>
+        – Áp dụng theo <b>Nghị định 100/2019/NĐ-CP</b>,
+        sửa đổi bổ sung bởi <b>Nghị định 123/2021/NĐ-CP</b>.<br>
+        – Thông tin mang tính <b>tham khảo học tập – nghiên cứu</b>.
+    </div>
+
+</div>
+
+<div class="footer">
+    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+</div>
+
+</body>
+</html>

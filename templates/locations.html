@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bản đồ camera giao thông</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/locations.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/statistics">📊 Thống kê</a>
+        <a href="/locations" class="active">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+    <h2>🗺️ BẢN ĐỒ CAMERA GIAO THÔNG VIỆT NAM</h2>
+
+    <p class="desc">
+        Hiển thị vị trí các trụ camera phạt nguội trên toàn quốc.
+        Có thể kéo, zoom và xem thông tin từng giao lộ.
+    </p>
+
+    <div id="map"></div>
+
+    <div class="note">
+        📌 Dữ liệu mang tính mô phỏng – phục vụ học tập & đồ án ITS.
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+</div>
+
+<script>
+    // ===== KHỞI TẠO BẢN ĐỒ =====
+    const map = L.map('map').setView([14.0583, 108.2772], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // ===== ICON =====
+    const cameraIcons = {
+        active: L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/814/814513.png',
+            iconSize: [32, 32]
+        }),
+        warning: L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/565/565547.png',
+            iconSize: [32, 32]
+        }),
+        demo: L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+            iconSize: [32, 32]
+        })
+    };
+
+    function icon(status) {
+        return cameraIcons[status] || cameraIcons.demo;
+    }
+
+    // ===== DANH SÁCH CAMERA TOÀN QUỐC =====
+    const cameras = [
+
+        // ===== TPHCM =====
+        {name:"Lê Duẩn",district:"Quận 1",lat:10.7871,lng:106.7049,status:"active"},
+        {name:"Nguyễn Huệ",district:"Quận 1",lat:10.7736,lng:106.7033,status:"active"},
+        {name:"Điện Biên Phủ",district:"Bình Thạnh",lat:10.8019,lng:106.7106,status:"warning"},
+        {name:"Trường Sơn",district:"Tân Bình",lat:10.8131,lng:106.6604,status:"active"},
+        {name:"Cộng Hòa",district:"Tân Bình",lat:10.8011,lng:106.6528,status:"warning"},
+
+        // ===== HÀ NỘI =====
+        {name:"Ô Chợ Dừa",district:"Đống Đa",lat:21.0189,lng:105.8272,status:"active"},
+        {name:"Xã Đàn – Phạm Ngọc Thạch",district:"Đống Đa",lat:21.0167,lng:105.8382,status:"active"},
+        {name:"Tràng Thi – Cửa Nam",district:"Hoàn Kiếm",lat:21.0288,lng:105.8411,status:"active"},
+        {name:"Phạm Văn Đồng – Hoàng Quốc Việt",district:"Cầu Giấy",lat:21.0464,lng:105.7835,status:"warning"},
+        {name:"Cao tốc Pháp Vân",district:"Hoàng Mai",lat:20.9447,lng:105.8411,status:"warning"},
+
+        // ===== ĐÀ NẴNG =====
+        {name:"Cầu Rồng",district:"Hải Châu",lat:16.0612,lng:108.2272,status:"active"},
+        {name:"Điện Biên Phủ",district:"Thanh Khê",lat:16.0684,lng:108.1857,status:"warning"},
+
+        // ===== HẢI PHÒNG =====
+        {name:"Ngã 6 Lê Hồng Phong",district:"Ngô Quyền",lat:20.8467,lng:106.6881,status:"active"},
+
+        // ===== CẦN THƠ =====
+        {name:"Nguyễn Văn Linh – 3/2",district:"Ninh Kiều",lat:10.0355,lng:105.7709,status:"active"},
+
+        // ===== BÌNH DƯƠNG =====
+        {name:"QL13 – Thủ Dầu Một",district:"Bình Dương",lat:10.9804,lng:106.6519,status:"warning"},
+
+        // ===== ĐỒNG NAI =====
+        {name:"QL1A – Biên Hòa",district:"Đồng Nai",lat:10.9574,lng:106.8427,status:"active"},
+
+        // ===== KHÁNH HÒA =====
+        {name:"Trần Phú",district:"Nha Trang",lat:12.2388,lng:109.1967,status:"active"},
+
+        // ===== BÀ RỊA – VŨNG TÀU =====
+        {name:"Nguyễn Thái Học",district:"TP Vũng Tàu",lat:10.3460,lng:107.0843,status:"warning"},
+
+        // ===== AN GIANG =====
+        {name:"QL91",district:"Long Xuyên",lat:10.3864,lng:105.4352,status:"active"},
+
+        // ===== QUẢNG NINH =====
+        {name:"QL18",district:"Hạ Long",lat:20.9513,lng:107.0740,status:"warning"}
+    ];
+
+    // ===== HIỂN THỊ =====
+    cameras.forEach(c => {
+        L.marker([c.lat, c.lng], {icon: icon(c.status)})
+            .addTo(map)
+            .bindPopup(`
+                <b>📷 Camera phạt nguội</b><br>
+                📍 ${c.name}<br>
+                🏙️ ${c.district}<br>
+                🚦 Trạng thái:
+                <b style="color:${c.status==='active'?'green':'orange'}">
+                    ${c.status==='active'?'Hoạt động':'Cảnh báo'}
+                </b>
+            `);
+    });
+</script>
+
+</body>
+</html>

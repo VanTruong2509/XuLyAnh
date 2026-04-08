@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>📊 Thống kê vi phạm</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/statistics">📊 Thống kê</a>
+        <a href="/locations">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<!-- SUMMARY CARDS -->
+<div class="summary">
+
+    <div class="card blue">
+        <h3>🚨 Tổng vi phạm</h3>
+        <p>{{ total }}</p>
+    </div>
+
+    <div class="card red">
+        <h3>⛔ Hôm nay</h3>
+        <p>{{ today_total }}</p>
+    </div>
+
+    <div class="card green">
+        <h3>⏰ Giờ cao điểm</h3>
+        <p>{{ peak_hour }}</p>
+    </div>
+
+</div>
+
+<!-- VEHICLE TYPE -->
+<div class="summary">
+
+    <div class="card motor">
+        <h3>🏍️ Xe máy</h3>
+        <p>{{ motor_count }}</p>
+    </div>
+
+    <div class="card car">
+        <h3>🚗 Ô tô</h3>
+        <p>{{ car_count }}</p>
+    </div>
+
+    <div class="card truck">
+        <h3>🚚 Xe tải / 🚌</h3>
+        <p>{{ truck_count }}</p>
+    </div>
+
+</div>
+
+<!-- CHARTS -->
+<div class="charts">
+
+    <div class="chart-box">
+        <h3>📅 Vi phạm theo ngày</h3>
+        <canvas id="dateChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+        <h3>🚗 Biển số vi phạm nhiều nhất</h3>
+        <canvas id="plateChart"></canvas>
+    </div>
+
+</div>
+
+
+<!-- CHART SCRIPT -->
+<script>
+const dateLabels = {{ date_labels | tojson }};
+const dateValues = {{ date_values | tojson }};
+const plateLabels = {{ plate_labels | tojson }};
+const plateValues = {{ plate_values | tojson }};
+
+// BAR CHART
+new Chart(document.getElementById('dateChart'), {
+    type: 'bar',
+    data: {
+        labels: dateLabels,
+        datasets: [{
+            label: 'Số xe vi phạm',
+            data: dateValues,
+            backgroundColor: '#38bdf8'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// PIE CHART
+new Chart(document.getElementById('plateChart'), {
+    type: 'pie',
+    data: {
+        labels: plateLabels,
+        datasets: [{
+            data: plateValues
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+
+</body>
+</html>

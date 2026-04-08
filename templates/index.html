@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giám sát giao thông</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+    </div>
+
+    <div class="header-menu">
+        <a href="/">🏠 Trang chủ</a>
+        <a href="/stream">📹 Giám sát</a>
+        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/statistics">📊 Thống kê</a>
+        <a href="/locations">📍 Bản đồ camera</a>
+        <a href="/about">ℹ️ Mức phạt</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="box">
+
+    <p class="desc">
+        Hệ thống sử dụng camera giao thông kết hợp xử lý ảnh và trí tuệ nhân tạo
+        để tự động phát hiện và ghi nhận hành vi xe vượt đèn đỏ, nhằm nâng cao
+        an toàn giao thông đô thị.
+    </p>
+
+    <!-- INTRO -->
+    <div class="intro">
+        <div class="intro-item">
+            📷 <b>Camera AI</b><br>
+            Nhận diện phương tiện<br>thời gian thực
+        </div>
+        <div class="intro-item">
+            🚦 <b>Phát hiện đèn đỏ</b><br>
+            Theo dõi tín hiệu<br>giao thông
+        </div>
+        <div class="intro-item">
+            🚨 <b>Ghi nhận vi phạm</b><br>
+            Lưu hình ảnh & video<br>chính xác
+        </div>
+    </div>
+
+    <!-- FORM UPLOAD -->
+    <form method="POST" enctype="multipart/form-data" class="upload-form">
+
+        <!-- input file ẩn -->
+        <input type="file" name="video" id="videoInput" accept="video/*" required hidden>
+
+        <!-- nút chọn file -->
+        <label for="videoInput" class="file-btn">
+            📁 Chọn video từ máy
+        </label>
+
+        <!-- tên file -->
+        <div id="fileName" class="file-name">
+            Chưa chọn file
+        </div>
+
+        <!-- nút upload -->
+        <button type="submit" class="upload-btn">
+            🚀 Upload & Start
+        </button>
+
+    </form>
+
+    <!-- STATUS -->
+    <div class="status">
+        <div class="card green">🟢 Đèn xanh</div>
+        <div class="card yellow">🟡 Đèn vàng</div>
+        <div class="card red">🔴 Đèn đỏ (Giám sát)</div>
+    </div>
+
+    <!-- PROCESS -->
+    <div class="process">
+        <h3>⚙️ Quy trình hoạt động</h3>
+        <ul>
+            <li>📤 Người dùng tải video giao thông lên hệ thống</li>
+            <li>🧠 AI xử lý hình ảnh và xác định trạng thái đèn</li>
+            <li>🚗 Phát hiện phương tiện vượt đèn đỏ</li>
+            <li>📸 Lưu bằng chứng và hiển thị kết quả</li>
+        </ul>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result">
+        <h3>📸 Kết quả giám sát</h3>
+        <p class="note">
+            Video và hình ảnh vi phạm sẽ hiển thị sau khi hệ thống xử lý
+        </p>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+</div>
+
+<!-- SCRIPT HIỂN TÊN FILE -->
+<script>
+const input = document.getElementById("videoInput");
+const fileName = document.getElementById("fileName");
+
+input.addEventListener("change", () => {
+    if (input.files.length > 0) {
+        fileName.textContent = "🎬 " + input.files[0].name;
+    } else {
+        fileName.textContent = "Chưa chọn file";
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== BODY ===== */
+body {
+    background: #eef2f7;
+    padding: 20px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-image: url("/static/images/01.jpg");
+    background-size: cover;
+    background-position: center;
+
+    filter: blur(8px);        /* độ mờ */
+    z-index: -1;              /* nằm sau nội dung */
+    transform: scale(1.05);  /* tránh viền trắng do blur */
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: #0f172a;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.header-left {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.header-menu a {
+    color: #e5e7eb;
+    text-decoration: none;
+    margin-left: 18px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.header-menu a:hover,
+.header-menu .active {
+    color: #38bdf8;
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 3px;
+}
+
+/* ===== TITLE ===== */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1e293b;
+}
+
+/* ===== FILTER ===== */
+.filter-box {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-box input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+}
+
+th, td {
+    border: 1px solid #e5e7eb;
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #e0f2fe;
+    color: #0f172a;
+    font-size: 15px;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #e0f2fe;
+}
+
+/* ===== IMAGE ===== */
+table img {
+    width: 180px;
+    border-radius: 10px;
+    border: 2px solid #38bdf8;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+table img:hover {
+    transform: scale(1.05);
+}
+
+/* ===== BIỂN SỐ ===== */
+td b {
+    font-size: 16px;
+    color: #0f172a;
+}
+
+/* ===== MỨC PHẠT ===== */
+.fine {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e293b;
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal img {
+    max-width: 85%;
+    max-height: 85%;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    background: #f1f5f9;
+    color: #555;
+}

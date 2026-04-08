@@ -28,7 +28,7 @@ WIDTH, HEIGHT = 640, 360
 STOP_LINE_Y = 320
 STREAMING = True
 
-# ================== NHẬN DIỆN ĐÈN ==================
+# ================== NHẬN DIỆN ĐÈN GIAO THÔNG ==================
 def detect_traffic_light(frame):
     h, w, _ = frame.shape
     roi = frame[0:int(h * 0.4), int(w * 0.5):w]
@@ -53,12 +53,11 @@ def get_license_plate(vehicle_crop, obj_id):
     try:
         h, w = vehicle_crop.shape[:2]
         plate_region = vehicle_crop[int(h * 0.5):h, :]
-
         gray = cv2.cvtColor(plate_region, cv2.COLOR_BGR2GRAY)
         gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-        plate_name = f"plate_{obj_id}.jpg"
+        plate_name = f"plate_{obj_id}_{int(time.time_ns())}.jpg"
         cv2.imwrite(os.path.join(PLATE_DIR, plate_name), thresh)
 
         results = ocr.readtext(thresh, allowlist='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-')
@@ -83,8 +82,9 @@ def index():
             violated_plates.clear()
             STREAMING = True
 
-            with open(TXT_FILE, "w", encoding="utf-8") as f:
-                f.write("DANH SÁCH XE VI PHẠM\n" + "=" * 60 + "\n")
+            if not os.path.exists(TXT_FILE):
+                with open(TXT_FILE, "w", encoding="utf-8") as f:
+                    f.write("DANH SÁCH XE VI PHẠM\n" + "=" * 60 + "\n")
 
             return redirect("/stream")
 
@@ -122,10 +122,16 @@ def generate_frames():
         frame = cv2.resize(frame, (WIDTH, HEIGHT))
         light = detect_traffic_light(frame)
 
-        # ✅ CHỈ ĐÈN ĐỎ
-        is_violation_light = (light == "red")
+        # ĐÈN CẤM ĐI = ĐỎ + VÀNG
+        is_violation_light = light in ["red", "yellow"]
 
-        color_light = (0, 0, 255) if light == "red" else (0, 255, 0)
+        # Màu hiển thị
+        if light == "red":
+            color_light = (0, 0, 255)
+        elif light == "yellow":
+            color_light = (0, 255, 255)
+        else:
+            color_light = (0, 255, 0)
 
         cv2.line(frame, (0, STOP_LINE_Y), (WIDTH, STOP_LINE_Y), color_light, 3)
         cv2.putText(frame, f"DEN: {light.upper()}", (10, 35),
@@ -147,22 +153,15 @@ def generate_frames():
                 vehicle_type = {2: "O to", 3: "Xe may", 5: "Xe buyt", 7: "Xe tai"}.get(cls, "Khac")
                 fine = "4 - 6 trieu" if vehicle_type == "Xe may" else "18 - 20 trieu"
 
-                # ================== VI PHẠM ==================
+                # ===== LOGIC VI PHẠM =====
                 if is_violation_light and y2 > STOP_LINE_Y:
-
                     if obj_id not in violated_ids:
+                        violated_ids.add(obj_id)
 
                         plate_text, plate_img = get_license_plate(frame[y1:y2, x1:x2], obj_id)
-
-                        # ❌ tránh trùng biển số
-                        if plate_text != "UNKNOWN" and plate_text in violated_plates.values():
-                            continue
-
-                        violated_ids.add(obj_id)
                         violated_plates[obj_id] = plate_text
 
-                        # ✅ chỉ lưu 1 ảnh
-                        car_img = f"car_{obj_id}.jpg"
+                        car_img = f"car_{obj_id}_{int(time.time_ns())}.jpg"
                         cv2.imwrite(os.path.join(VIOLATION_DIR, car_img), frame[y1:y2, x1:x2])
 
                         with open(TXT_FILE, "a", encoding="utf-8") as f:
@@ -190,7 +189,7 @@ def generate_frames():
 def video_feed():
     return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
-# ================== QUẢN LÝ ==================
+# ================== QUẢN LÝ VI PHẠM ==================
 @app.route("/violations")
 def violations():
     data = []
@@ -207,6 +206,29 @@ def violations():
                         data.append(row)
     return render_template("violations.html", violations=data)
 
+@app.route("/statistics")
+def statistics():
+    dates, plates = [], []
+    if os.path.exists(TXT_FILE):
+        with open(TXT_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                if "|" in line:
+                    parts = line.split("|")
+                    dates.append(parts[0].split(":")[1].strip().split(" ")[0])
+                    plates.append(parts[1].split(":")[1].strip())
+
+    date_count = Counter(dates)
+    plate_count = Counter(plates)
+
+    return render_template(
+        "statistics.html",
+        total=len(plates),
+        date_labels=list(date_count.keys()),
+        date_values=list(date_count.values()),
+        plate_labels=list(plate_count.keys()),
+        plate_values=list(plate_count.values())
+    )
+
 @app.route("/violation_images/<filename>")
 def violation_images(filename):
     return send_from_directory(VIOLATION_DIR, filename)
@@ -214,64 +236,14 @@ def violation_images(filename):
 @app.route("/violation_plates/<filename>")
 def violation_plates(filename):
     return send_from_directory(PLATE_DIR, filename)
-@app.route("/statistics")
-def statistics():
-    dates, plates, hours, types = [], [], [], []
+@app.route("/about")
+def about():
+    return render_template("about.html")
+@app.route("/locations")
+def locations():
+    return render_template("locations.html")
 
-    if os.path.exists(TXT_FILE):
-        with open(TXT_FILE, "r", encoding="utf-8") as f:
-            for line in f:
-                if "|" in line:
-                    parts = line.split("|")
 
-                    # ===== THỜI GIAN =====
-                    time_str = parts[0].split(":")[1].strip()
-                    date = time_str.split(" ")[0]
-                    hour = time_str.split(" ")[1].split(":")[0]
-
-                    dates.append(date)
-                    hours.append(hour)
-
-                    # ===== BIỂN SỐ =====
-                    plates.append(parts[1].split(":")[1].strip())
-
-                    # ===== LOẠI XE =====
-                    types.append(parts[2].split(":")[1].strip())
-
-    # ===== THỐNG KÊ =====
-    date_count = Counter(dates)
-    plate_count = Counter(plates)
-    hour_count = Counter(hours)
-    type_count = Counter(types)
-
-    # ===== TỔNG =====
-    total = len(plates)
-
-    # ===== HÔM NAY =====
-    today = time.strftime("%Y-%m-%d")
-    today_total = date_count.get(today, 0)
-
-    # ===== GIỜ CAO ĐIỂM =====
-    peak_hour = max(hour_count, key=hour_count.get) if hour_count else "N/A"
-
-    # ===== LOẠI XE =====
-    motor_count = type_count.get("Xe may", 0)
-    car_count = type_count.get("O to", 0)
-    truck_count = type_count.get("Xe tai", 0) + type_count.get("Xe buyt", 0)
-
-    return render_template(
-        "statistics.html",
-        total=total,
-        today_total=today_total,
-        peak_hour=peak_hour,
-        motor_count=motor_count,
-        car_count=car_count,
-        truck_count=truck_count,
-        date_labels=list(date_count.keys()),
-        date_values=list(date_count.values()),
-        plate_labels=list(plate_count.keys()),
-        plate_values=list(plate_count.values())
-    )
 # ================== RUN ==================
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

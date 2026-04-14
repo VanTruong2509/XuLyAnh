@@ -2,28 +2,28 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Xe vi phạm</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/violations.css') }}">
+    <title>Xe đã nhận diện</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detections.css') }}">
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
     <div class="header-left">
-        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+        🚗 HỆ THỐNG NHẬN DIỆN XE VÀ BIỂN SỐ
     </div>
 
     <div class="header-menu">
         <a href="/">🏠 Trang chủ</a>
         <a href="/stream">📹 Giám sát</a>
-        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/detections">📋 Xe đã nhận diện</a>
         <a href="/statistics">📊 Thống kê</a>
         <a href="/locations">📍 Bản đồ camera</a>
-        <a href="/about">ℹ️ Mức phạt</a>
+        <a href="/about">ℹ️ Giới thiệu</a>
     </div>
 </div>
 
-<h2>🚨 Danh sách xe vi phạm</h2>
+<h2>📋 Danh sách xe đã nhận diện</h2>
 
 <!-- FILTER -->
 <div class="filter-box">
@@ -38,17 +38,18 @@
     <thead>
         <tr>
             <th>Thời gian</th>
+            <th>Track ID</th>
             <th>Biển số</th>
             <th>Loại xe</th>
             <th>Ảnh xe</th>
             <th>Ảnh biển số</th>
-            <th>Mức phạt</th>
         </tr>
     </thead>
     <tbody>
-        {% for v in violations %}
+        {% for v in detections %}
         <tr>
             <td class="time">{{ v['Thoi gian'] }}</td>
+            <td>{{ v['Track ID'] }}</td>
 
             <td class="plate"><b>{{ v['Bien so'] }}</b></td>
 
@@ -76,17 +77,6 @@
                 <img src="{{ url_for('violation_plates', filename=v['Anh bien so']) }}"
                      onclick="openModal(this.src)">
             </td>
-
-            <!-- MỨC PHẠT -->
-            <td class="fine">
-                {% if 'Xe may' in v['Loai xe'] %}
-                    4.000.000 – 6.000.000 VNĐ<br>
-                    <small>Tước GPLX 1–3 tháng</small>
-                {% else %}
-                    18.000.000 – 20.000.000 VNĐ<br>
-                    <small>Tước GPLX 2–4 tháng</small>
-                {% endif %}
-            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -99,7 +89,7 @@
 
 <!-- FOOTER -->
 <div class="footer">
-    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+    © 2026 | Đồ án hệ thống nhận diện biển số xe
 </div>
 
 <!-- SCRIPT -->
@@ -157,7 +147,7 @@ function exportCSV() {
 
     let link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "xe_vi_pham.csv";
+    link.download = "xe_da_nhan_dien.csv";
     link.click();
 }
 </script>

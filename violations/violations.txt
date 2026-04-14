@@ -1,5 +1,0 @@
-DANH SÁCH XE VI PHẠM
-============================================================
-Thoi gian: 2026-04-08 19:15:27 | Bien so: UNKNOWN | Loai xe: Xe tai | Muc phat: 18 - 20 trieu | Anh xe: car_49.jpg | Anh bien so: plate_49.jpg
-Thoi gian: 2026-04-08 19:15:29 | Bien so: RH041157A | Loai xe: Xe tai | Muc phat: 18 - 20 trieu | Anh xe: car_63.jpg | Anh bien so: plate_63.jpg
-Thoi gian: 2026-04-08 19:15:41 | Bien so: UNKNOWN | Loai xe: O to | Muc phat: 18 - 20 trieu | Anh xe: car_355.jpg | Anh bien so: plate_355.jpg

@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giám sát trực tiếp</title>
+    <title>Nhận diện trực tiếp</title>
     <link rel="stylesheet" href="/static/css/stream.css">
 
 </head>
@@ -11,26 +11,26 @@
 
 <div class="header">
     <div class="header-left">
-        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+        🚗 HỆ THỐNG NHẬN DIỆN XE VÀ BIỂN SỐ
     </div>
 
     <div class="header-menu">
         <a href="/">🏠 Trang chủ</a>
         <a href="/stream">📹 Giám sát</a>
-        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/detections">📋 Xe đã nhận diện</a>
         <a href="/statistics">📊 Thống kê</a>
         <a href="/locations">📍 Bản đồ camera</a>
-        <a href="/about">ℹ️ Mức phạt</a>
+        <a href="/about">ℹ️ Giới thiệu</a>
     </div>
 </div>
 
 <div class="live-container">
 
-    <h2 class="live-title">📷 Camera giao lộ</h2>
+    <h2 class="live-title">📷 Video đang xử lý</h2>
 
     <div class="live-indicator">
         <span class="live-dot"></span>
-        Hệ thống đang giám sát xe vượt đèn đỏ
+        Hệ thống đang nhận diện xe và biển số
     </div>
 
     <!-- VIDEO -->
@@ -45,13 +45,13 @@
     </div>
 
     <div class="live-alert">
-        🚨 Vi phạm khi <b>ĐÈN ĐỎ</b> và <b>PHƯƠNG TIỆN VƯỢT VẠCH DỪNG</b>
+        ✅ Khung detect ROI đang được <b>cố định ở giữa video</b>
     </div>
 
 </div>
 
 <div class="live-footer">
-    © 2026 | Đồ án Hệ thống giao thông thông minh
+    © 2026 | Đồ án hệ thống nhận diện biển số xe
 </div>
 
 <script>

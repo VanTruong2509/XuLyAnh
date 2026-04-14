@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giám sát giao thông</title>
+    <title>Nhận diện xe và biển số</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -10,16 +10,16 @@
 <!-- HEADER -->
 <div class="header">
     <div class="header-left">
-        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+        🚗 HỆ THỐNG NHẬN DIỆN XE VÀ BIỂN SỐ
     </div>
 
     <div class="header-menu">
         <a href="/">🏠 Trang chủ</a>
         <a href="/stream">📹 Giám sát</a>
-        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/detections">📋 Xe đã nhận diện</a>
         <a href="/statistics">📊 Thống kê</a>
         <a href="/locations">📍 Bản đồ camera</a>
-        <a href="/about">ℹ️ Mức phạt</a>
+        <a href="/about">ℹ️ Giới thiệu</a>
     </div>
 </div>
 
@@ -27,9 +27,9 @@
 <div class="box">
 
     <p class="desc">
-        Hệ thống sử dụng camera giao thông kết hợp xử lý ảnh và trí tuệ nhân tạo
-        để tự động phát hiện và ghi nhận hành vi xe vượt đèn đỏ, nhằm nâng cao
-        an toàn giao thông đô thị.
+        Hệ thống sử dụng AI để phát hiện phương tiện trong video và tự động
+        trích xuất biển số xe. Sau khi upload video, hệ thống sẽ hiển thị
+        loại phương tiện và biển số tương ứng theo thời gian thực.
     </p>
 
     <!-- INTRO -->
@@ -39,12 +39,12 @@
             Nhận diện phương tiện<br>thời gian thực
         </div>
         <div class="intro-item">
-            🚦 <b>Phát hiện đèn đỏ</b><br>
-            Theo dõi tín hiệu<br>giao thông
+            🧠 <b>YOLO Tracking</b><br>
+            Theo dõi phương tiện<br>xuyên suốt video
         </div>
         <div class="intro-item">
-            🚨 <b>Ghi nhận vi phạm</b><br>
-            Lưu hình ảnh & video<br>chính xác
+            🔠 <b>OCR biển số</b><br>
+            Trích xuất biển số và<br>lưu kết quả
         </div>
     </div>
 
@@ -73,9 +73,9 @@
 
     <!-- STATUS -->
     <div class="status">
-        <div class="card green">🟢 Đèn xanh</div>
-        <div class="card yellow">🟡 Đèn vàng</div>
-        <div class="card red">🔴 Đèn đỏ (Giám sát)</div>
+        <div class="card green">🚗 Nhận diện xe</div>
+        <div class="card yellow">🧠 Theo dõi đối tượng</div>
+        <div class="card red">🔠 Trích xuất biển số</div>
     </div>
 
     <!-- PROCESS -->
@@ -83,17 +83,17 @@
         <h3>⚙️ Quy trình hoạt động</h3>
         <ul>
             <li>📤 Người dùng tải video giao thông lên hệ thống</li>
-            <li>🧠 AI xử lý hình ảnh và xác định trạng thái đèn</li>
-            <li>🚗 Phát hiện phương tiện vượt đèn đỏ</li>
-            <li>📸 Lưu bằng chứng và hiển thị kết quả</li>
+            <li>🧠 AI phát hiện và theo dõi từng phương tiện</li>
+            <li>🔠 OCR đọc biển số từ vùng xe</li>
+            <li>💾 Lưu ảnh xe, ảnh biển số và dữ liệu nhận diện</li>
         </ul>
     </div>
 
     <!-- RESULT -->
     <div class="result">
-        <h3>📸 Kết quả giám sát</h3>
+        <h3>📸 Kết quả nhận diện</h3>
         <p class="note">
-            Video và hình ảnh vi phạm sẽ hiển thị sau khi hệ thống xử lý
+            Danh sách xe đã nhận diện sẽ hiển thị sau khi hệ thống xử lý
         </p>
     </div>
 
@@ -101,7 +101,7 @@
 
 <!-- FOOTER -->
 <div class="footer">
-    © 2026 | Đồ án Hệ thống giao thông thông minh (ITS)
+    © 2026 | Đồ án hệ thống nhận diện biển số xe
 </div>
 
 <!-- SCRIPT HIỂN TÊN FILE -->

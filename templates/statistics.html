@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>📊 Thống kê vi phạm</title>
+    <title>📊 Thống kê nhận diện</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,16 +12,16 @@
 <!-- HEADER -->
 <div class="header">
     <div class="header-left">
-        🚦 HỆ THỐNG GIÁM SÁT XE VƯỢT ĐÈN ĐỎ
+        🚗 HỆ THỐNG NHẬN DIỆN XE VÀ BIỂN SỐ
     </div>
 
     <div class="header-menu">
         <a href="/">🏠 Trang chủ</a>
         <a href="/stream">📹 Giám sát</a>
-        <a href="/violations">🚨 Xe vi phạm</a>
+        <a href="/detections">📋 Xe đã nhận diện</a>
         <a href="/statistics">📊 Thống kê</a>
         <a href="/locations">📍 Bản đồ camera</a>
-        <a href="/about">ℹ️ Mức phạt</a>
+        <a href="/about">ℹ️ Giới thiệu</a>
     </div>
 </div>
 
@@ -29,12 +29,12 @@
 <div class="summary">
 
     <div class="card blue">
-        <h3>🚨 Tổng vi phạm</h3>
+        <h3>🚗 Tổng xe đã nhận diện</h3>
         <p>{{ total }}</p>
     </div>
 
     <div class="card red">
-        <h3>⛔ Hôm nay</h3>
+        <h3>📅 Hôm nay</h3>
         <p>{{ today_total }}</p>
     </div>
 
@@ -69,12 +69,12 @@
 <div class="charts">
 
     <div class="chart-box">
-        <h3>📅 Vi phạm theo ngày</h3>
+        <h3>📅 Lượt nhận diện theo ngày</h3>
         <canvas id="dateChart"></canvas>
     </div>
 
     <div class="chart-box">
-        <h3>🚗 Biển số vi phạm nhiều nhất</h3>
+        <h3>🔠 Biển số xuất hiện nhiều nhất</h3>
         <canvas id="plateChart"></canvas>
     </div>
 
@@ -82,11 +82,15 @@
 
 
 <!-- CHART SCRIPT -->
+<script id="dateLabelsData" type="application/json">{{ date_labels | tojson }}</script>
+<script id="dateValuesData" type="application/json">{{ date_values | tojson }}</script>
+<script id="plateLabelsData" type="application/json">{{ plate_labels | tojson }}</script>
+<script id="plateValuesData" type="application/json">{{ plate_values | tojson }}</script>
 <script>
-const dateLabels = {{ date_labels | tojson }};
-const dateValues = {{ date_values | tojson }};
-const plateLabels = {{ plate_labels | tojson }};
-const plateValues = {{ plate_values | tojson }};
+const dateLabels = JSON.parse(document.getElementById("dateLabelsData").textContent);
+const dateValues = JSON.parse(document.getElementById("dateValuesData").textContent);
+const plateLabels = JSON.parse(document.getElementById("plateLabelsData").textContent);
+const plateValues = JSON.parse(document.getElementById("plateValuesData").textContent);
 
 // BAR CHART
 new Chart(document.getElementById('dateChart'), {
@@ -94,7 +98,7 @@ new Chart(document.getElementById('dateChart'), {
     data: {
         labels: dateLabels,
         datasets: [{
-            label: 'Số xe vi phạm',
+            label: 'Số lượt nhận diện',
             data: dateValues,
             backgroundColor: '#38bdf8'
         }]

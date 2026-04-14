@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, Response, send_from_directory
 import cv2, os, time
-import numpy as np
+import shutil
 from ultralytics import YOLO
 import easyocr
 from collections import Counter
@@ -8,45 +8,48 @@ from collections import Counter
 app = Flask(__name__)
 
 # ================== CẤU HÌNH HỆ THỐNG ==================
-BASE_VIOLATION = "violations"
-VIOLATION_DIR = os.path.join(BASE_VIOLATION, "images")
-PLATE_DIR = os.path.join(BASE_VIOLATION, "plates")
-TXT_FILE = os.path.join(BASE_VIOLATION, "violations.txt")
+DETECTIONS_DIR = "detections"
+VEHICLE_DIR = os.path.join(DETECTIONS_DIR, "images")
+PLATE_DIR = os.path.join(DETECTIONS_DIR, "plates")
+TXT_FILE = os.path.join(DETECTIONS_DIR, "detections.txt")
+LEGACY_DIR = "violations"
+LEGACY_VEHICLE_DIR = os.path.join(LEGACY_DIR, "images")
+LEGACY_PLATE_DIR = os.path.join(LEGACY_DIR, "plates")
+LEGACY_TXT_FILE = os.path.join(LEGACY_DIR, "violations.txt")
 
-for path in [VIOLATION_DIR, PLATE_DIR]:
+for path in [DETECTIONS_DIR, VEHICLE_DIR, PLATE_DIR]:
     os.makedirs(path, exist_ok=True)
+
+if not os.path.exists(TXT_FILE) and os.path.exists(LEGACY_TXT_FILE):
+    with open(LEGACY_TXT_FILE, "r", encoding="utf-8") as src, open(TXT_FILE, "w", encoding="utf-8") as dst:
+        dst.write(src.read())
+
+if os.path.isdir(LEGACY_VEHICLE_DIR):
+    for name in os.listdir(LEGACY_VEHICLE_DIR):
+        src = os.path.join(LEGACY_VEHICLE_DIR, name)
+        dst = os.path.join(VEHICLE_DIR, name)
+        if os.path.isfile(src) and not os.path.exists(dst):
+            shutil.copy2(src, dst)
+
+if os.path.isdir(LEGACY_PLATE_DIR):
+    for name in os.listdir(LEGACY_PLATE_DIR):
+        src = os.path.join(LEGACY_PLATE_DIR, name)
+        dst = os.path.join(PLATE_DIR, name)
+        if os.path.isfile(src) and not os.path.exists(dst):
+            shutil.copy2(src, dst)
 
 # ================== KHỞI TẠO MODEL ==================
 vehicle_model = YOLO("yolov8n.pt")
 ocr = easyocr.Reader(['en'], gpu=False)
 
 cap = None
-violated_ids = set()
-violated_plates = {}
+detected_ids = set()
+detected_plates = {}
+seen_plate_texts = set()
+DETECT_ROI = None  # Normalized ROI: {x1, y1, x2, y2} in range [0, 1]
+FIXED_CENTER_ROI = {"x1": 0.2, "y1": 0.2, "x2": 0.8, "y2": 0.8}
 
-WIDTH, HEIGHT = 640, 360
-STOP_LINE_Y = 320
 STREAMING = True
-
-# ================== NHẬN DIỆN ĐÈN GIAO THÔNG ==================
-def detect_traffic_light(frame):
-    h, w, _ = frame.shape
-    roi = frame[0:int(h * 0.4), int(w * 0.5):w]
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-
-    masks = {
-        "red": cv2.inRange(hsv, (0, 150, 100), (10, 255, 255)) |
-               cv2.inRange(hsv, (160, 150, 100), (180, 255, 255)),
-        "yellow": cv2.inRange(hsv, (15, 150, 150), (35, 255, 255)),
-        "green": cv2.inRange(hsv, (40, 100, 100), (90, 255, 255))
-    }
-
-    for color, mask in masks.items():
-        cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for c in cnts:
-            if cv2.contourArea(c) > 150:
-                return color
-    return "unknown"
 
 # ================== OCR BIỂN SỐ ==================
 def get_license_plate(vehicle_crop, obj_id):
@@ -70,7 +73,7 @@ def get_license_plate(vehicle_crop, obj_id):
 # ================== ROUTES ==================
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global cap, violated_ids, violated_plates, STREAMING
+    global cap, detected_ids, detected_plates, seen_plate_texts, STREAMING
 
     if request.method == "POST":
         video = request.files.get("video")
@@ -78,13 +81,14 @@ def index():
             video.save("video.mp4")
             cap = cv2.VideoCapture("video.mp4")
 
-            violated_ids.clear()
-            violated_plates.clear()
+            detected_ids.clear()
+            detected_plates.clear()
+            seen_plate_texts.clear()
             STREAMING = True
 
             if not os.path.exists(TXT_FILE):
                 with open(TXT_FILE, "w", encoding="utf-8") as f:
-                    f.write("DANH SÁCH XE VI PHẠM\n" + "=" * 60 + "\n")
+                    f.write("DANH SACH XE DA NHAN DIEN\n" + "=" * 60 + "\n")
 
             return redirect("/stream")
 
@@ -106,9 +110,27 @@ def resume_stream():
     STREAMING = True
     return "resumed"
 
+
+@app.route("/set_roi", methods=["POST"])
+def set_roi():
+    return {
+        "status": "ok",
+        "message": "ROI dang duoc set cung o giua video",
+        "roi": FIXED_CENTER_ROI,
+    }
+
+
+@app.route("/clear_roi", methods=["POST"])
+def clear_roi():
+    return {
+        "status": "ok",
+        "message": "ROI co dinh dang bat, khong can xoa",
+        "roi": FIXED_CENTER_ROI,
+    }
+
 # ================== STREAM VIDEO ==================
 def generate_frames():
-    global cap, STREAMING, violated_ids, violated_plates
+    global cap, STREAMING, detected_ids, detected_plates, seen_plate_texts
 
     while cap and cap.isOpened():
         if not STREAMING:
@@ -119,23 +141,21 @@ def generate_frames():
         if not ret:
             break
 
-        frame = cv2.resize(frame, (WIDTH, HEIGHT))
-        light = detect_traffic_light(frame)
-
-        # ĐÈN CẤM ĐI = ĐỎ + VÀNG
-        is_violation_light = light in ["red", "yellow"]
-
-        # Màu hiển thị
-        if light == "red":
-            color_light = (0, 0, 255)
-        elif light == "yellow":
-            color_light = (0, 255, 255)
-        else:
-            color_light = (0, 255, 0)
-
-        cv2.line(frame, (0, STOP_LINE_Y), (WIDTH, STOP_LINE_Y), color_light, 3)
-        cv2.putText(frame, f"DEN: {light.upper()}", (10, 35),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color_light, 3)
+        frame_h, frame_w = frame.shape[:2]
+        x1r, y1r, x2r, y2r = (
+            FIXED_CENTER_ROI["x1"],
+            FIXED_CENTER_ROI["y1"],
+            FIXED_CENTER_ROI["x2"],
+            FIXED_CENTER_ROI["y2"],
+        )
+        rx1 = int(x1r * frame_w)
+        ry1 = int(y1r * frame_h)
+        rx2 = int(x2r * frame_w)
+        ry2 = int(y2r * frame_h)
+        roi_px = (rx1, ry1, rx2, ry2)
+        cv2.rectangle(frame, (rx1, ry1), (rx2, ry2), (255, 180, 0), 2)
+        cv2.putText(frame, "ROI CO DINH", (rx1, max(25, ry1 - 8)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 180, 0), 2)
 
         results = vehicle_model.track(frame, persist=True, verbose=False)
 
@@ -150,36 +170,44 @@ def generate_frames():
 
                 x1, y1, x2, y2 = map(int, box)
 
+                rx1, ry1, rx2, ry2 = roi_px
+                cx = (x1 + x2) // 2
+                cy = (y1 + y2) // 2
+                if cx < rx1 or cx > rx2 or cy < ry1 or cy > ry2:
+                    continue
+
                 vehicle_type = {2: "O to", 3: "Xe may", 5: "Xe buyt", 7: "Xe tai"}.get(cls, "Khac")
-                fine = "4 - 6 trieu" if vehicle_type == "Xe may" else "18 - 20 trieu"
 
-                # ===== LOGIC VI PHẠM =====
-                if is_violation_light and y2 > STOP_LINE_Y:
-                    if obj_id not in violated_ids:
-                        violated_ids.add(obj_id)
+                if obj_id not in detected_ids:
+                    detected_ids.add(obj_id)
 
-                        plate_text, plate_img = get_license_plate(frame[y1:y2, x1:x2], obj_id)
-                        violated_plates[obj_id] = plate_text
+                    plate_text, plate_img = get_license_plate(frame[y1:y2, x1:x2], obj_id)
+                    detected_plates[obj_id] = plate_text
+
+                    # Avoid duplicated records when tracker re-IDs the same vehicle.
+                    should_write = (plate_text == "UNKNOWN") or (plate_text not in seen_plate_texts)
+                    if should_write:
+                        if plate_text != "UNKNOWN":
+                            seen_plate_texts.add(plate_text)
 
                         car_img = f"car_{obj_id}_{int(time.time_ns())}.jpg"
-                        cv2.imwrite(os.path.join(VIOLATION_DIR, car_img), frame[y1:y2, x1:x2])
+                        cv2.imwrite(os.path.join(VEHICLE_DIR, car_img), frame[y1:y2, x1:x2])
 
                         with open(TXT_FILE, "a", encoding="utf-8") as f:
                             f.write(
                                 f"Thoi gian: {time.strftime('%Y-%m-%d %H:%M:%S')} | "
+                                f"Track ID: {obj_id} | "
                                 f"Bien so: {plate_text} | "
                                 f"Loai xe: {vehicle_type} | "
-                                f"Muc phat: {fine} | "
                                 f"Anh xe: {car_img} | "
                                 f"Anh bien so: {plate_img}\n"
                             )
 
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
-                    cv2.putText(frame, f"VI PHAM - {violated_plates.get(obj_id, '')}",
-                                (x1, y1 - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                else:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                plate_text = detected_plates.get(obj_id, "UNKNOWN")
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 200, 0), 2)
+                cv2.putText(frame, f"{vehicle_type} | {plate_text}",
+                            (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 200, 0), 2)
 
         _, buffer = cv2.imencode(".jpg", frame)
         yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" +
@@ -189,9 +217,9 @@ def generate_frames():
 def video_feed():
     return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
-# ================== QUẢN LÝ VI PHẠM ==================
-@app.route("/violations")
-def violations():
+# ================== DANH SACH XE DA NHAN DIEN ==================
+@app.route("/detections")
+def detections():
     data = []
     if os.path.exists(TXT_FILE):
         with open(TXT_FILE, "r", encoding="utf-8") as f:
@@ -204,25 +232,51 @@ def violations():
                             row[k.strip()] = v.strip()
                     if row:
                         data.append(row)
-    return render_template("violations.html", violations=data)
+    return render_template("detections.html", detections=data)
+
+
+@app.route("/violations")
+def violations_redirect():
+    return redirect("/detections")
 
 @app.route("/statistics")
 def statistics():
-    dates, plates = [], []
+    dates, plates, hours, vehicles = [], [], [], []
     if os.path.exists(TXT_FILE):
         with open(TXT_FILE, "r", encoding="utf-8") as f:
             for line in f:
                 if "|" in line:
-                    parts = line.split("|")
-                    dates.append(parts[0].split(":")[1].strip().split(" ")[0])
-                    plates.append(parts[1].split(":")[1].strip())
+                    row = {}
+                    for p in line.strip().split("|"):
+                        if ":" in p:
+                            k, v = p.split(":", 1)
+                            row[k.strip()] = v.strip()
+                    if row:
+                        ts = row.get("Thoi gian", "")
+                        if " " in ts:
+                            d, t = ts.split(" ", 1)
+                            dates.append(d)
+                            hours.append(t.split(":")[0])
+                        plates.append(row.get("Bien so", "UNKNOWN"))
+                        vehicles.append(row.get("Loai xe", "Khac"))
 
     date_count = Counter(dates)
     plate_count = Counter(plates)
+    hour_count = Counter(hours)
+    vehicle_count = Counter(vehicles)
+
+    today = time.strftime("%Y-%m-%d")
+    today_total = date_count.get(today, 0)
+    peak_hour = f"{hour_count.most_common(1)[0][0]}h" if hour_count else "--"
 
     return render_template(
         "statistics.html",
         total=len(plates),
+        today_total=today_total,
+        peak_hour=peak_hour,
+        motor_count=vehicle_count.get("Xe may", 0),
+        car_count=vehicle_count.get("O to", 0),
+        truck_count=vehicle_count.get("Xe tai", 0) + vehicle_count.get("Xe buyt", 0),
         date_labels=list(date_count.keys()),
         date_values=list(date_count.values()),
         plate_labels=list(plate_count.keys()),
@@ -231,7 +285,7 @@ def statistics():
 
 @app.route("/violation_images/<filename>")
 def violation_images(filename):
-    return send_from_directory(VIOLATION_DIR, filename)
+    return send_from_directory(VEHICLE_DIR, filename)
 
 @app.route("/violation_plates/<filename>")
 def violation_plates(filename):

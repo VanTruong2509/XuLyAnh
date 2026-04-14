@@ -129,6 +129,7 @@ def clear_roi():
     }
 
 # ================== STREAM VIDEO ==================
+# ================== STREAM VIDEO ==================
 def generate_frames():
     global cap, STREAMING, detected_ids, detected_plates, seen_plate_texts
 
@@ -142,20 +143,16 @@ def generate_frames():
             break
 
         frame_h, frame_w = frame.shape[:2]
-        x1r, y1r, x2r, y2r = (
-            FIXED_CENTER_ROI["x1"],
-            FIXED_CENTER_ROI["y1"],
-            FIXED_CENTER_ROI["x2"],
-            FIXED_CENTER_ROI["y2"],
-        )
-        rx1 = int(x1r * frame_w)
-        ry1 = int(y1r * frame_h)
-        rx2 = int(x2r * frame_w)
-        ry2 = int(y2r * frame_h)
-        roi_px = (rx1, ry1, rx2, ry2)
-        cv2.rectangle(frame, (rx1, ry1), (rx2, ry2), (255, 180, 0), 2)
-        cv2.putText(frame, "ROI CO DINH", (rx1, max(25, ry1 - 8)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 180, 0), 2)
+
+        # --- CẤU HÌNH ĐIỀU KIỆN CHỤP CHUẨN ---
+        # 1. Viền an toàn (Margin): Khoảng cách (pixel) từ mép video. Xe lọt qua viền này mới tính là "Vào hẳn"
+        MARGIN = 20 
+        # 2. Kích thước tối thiểu: Lọc bỏ các xe ở tít đằng xa, phải đủ to mới chụp
+        MIN_WIDTH = 120
+        MIN_HEIGHT = 120
+
+        # (Tùy chọn) Vẽ một đường viền mỏng màu vàng để bạn dễ hình dung khu vực "Vào hẳn"
+        cv2.rectangle(frame, (MARGIN, MARGIN), (frame_w - MARGIN, frame_h - MARGIN), (0, 255, 255), 1)
 
         results = vehicle_model.track(frame, persist=True, verbose=False)
 
@@ -169,12 +166,19 @@ def generate_frames():
                     continue
 
                 x1, y1, x2, y2 = map(int, box)
+                box_w = x2 - x1
+                box_h = y2 - y1
 
-                rx1, ry1, rx2, ry2 = roi_px
-                cx = (x1 + x2) // 2
-                cy = (y1 + y2) // 2
-                if cx < rx1 or cx > rx2 or cy < ry1 or cy > ry2:
+                # -----------------------------------------------------
+                # LOGIC CHỐNG NHIỄU & CHỐNG TRÙNG LẶP
+                # 1. Nếu xe chạm hoặc nằm ngoài viền an toàn -> Bỏ qua chưa chụp vội
+                if x1 <= MARGIN or y1 <= MARGIN or x2 >= (frame_w - MARGIN) or y2 >= (frame_h - MARGIN):
                     continue
+
+                # 2. Nếu xe quá nhỏ (ở xa) -> Bỏ qua
+                if box_w < MIN_WIDTH or box_h < MIN_HEIGHT:
+                    continue
+                # -----------------------------------------------------
 
                 vehicle_type = {2: "O to", 3: "Xe may", 5: "Xe buyt", 7: "Xe tai"}.get(cls, "Khac")
 

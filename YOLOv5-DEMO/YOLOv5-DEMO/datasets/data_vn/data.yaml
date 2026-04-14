@@ -1,0 +1,12 @@
+path: ../datasets/data_vn  # Quan trọng: Chỉ đường dẫn ra thư mục dataset
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 1
+names: ['plate']
+train: ../train/images  # Đường dẫn thư mục ảnh train
+val: ../valid/images    # Đường dẫn thư mục ảnh validation
+
+nc: 36  # Tổng số lớp (10 số + 26 chữ)
+names: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']

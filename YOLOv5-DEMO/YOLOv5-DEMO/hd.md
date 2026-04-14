@@ -1,0 +1,1 @@
+PS C:\Users\VINH\Downloads\YOLOv5-DEMO\YOLOv5-DEMO\yolov5> Set-Location "c:/Users/VINH/Downloads/YOLOv5-DEMO/YOLOv5-DEMO/yolov5"; Get-ChildItem runs/demo/plate_demo_1to6 -File | Select-Object -ExpandProperty Name

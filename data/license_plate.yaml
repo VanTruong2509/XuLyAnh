@@ -1,0 +1,12 @@
+# Đường dẫn gốc tới thư mục chứa dữ liệu (Sửa D:/... cho đúng máy bạn)
+path: D:/LicensePlateProject/data/license_plate 
+
+# Đường dẫn tương đối từ 'path' tới ảnh
+train: train/images
+val: valid/images  
+
+# Số lượng class (chỉ có 1 loại là biển số)
+nc: 1
+
+# Tên class
+names: ['license_plate']

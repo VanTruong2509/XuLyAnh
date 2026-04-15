@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nhan Dien Bien So Xe</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Nhan Dien Bien So Xe</h1>
+      <p>Upload anh, bam Nhan Dien de xem ket qua YOLO + OCR, crop bien so va xu ly anh mo.</p>
+    </header>
+
+    <section class="controls card">
+      <form id="uploadForm">
+        <input id="imageInput" name="image" type="file" accept="image/*" required />
+        <button id="runBtn" type="submit">Nhan Dien</button>
+      </form>
+      <p id="statusText" class="status">San sang.</p>
+    </section>
+
+    <section class="viewer card">
+      <div class="panel">
+        <h2>Anh goc</h2>
+        <img id="originalImg" alt="Anh goc" />
+      </div>
+      <div class="panel">
+        <h2>Anh da xu ly</h2>
+        <img id="processedImg" alt="Anh da xu ly" />
+      </div>
+    </section>
+
+    <section class="result card">
+      <div class="result-head">
+        <h2>Danh sach bien so da cat</h2>
+        <span id="countBadge" class="badge">0</span>
+      </div>
+      <div id="cropList" class="crop-list"></div>
+    </section>
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
